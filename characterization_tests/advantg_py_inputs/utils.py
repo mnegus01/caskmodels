@@ -1,7 +1,8 @@
 '''
 Created on Dec 2, 2016
-
 @author: Mitch
+
+Utilities to be used in transforming a file object into a modifiable form and back
 '''
 
 def splitfile(infile,delimiter=None):

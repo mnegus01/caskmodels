@@ -1,10 +1,19 @@
 '''
 Created on Dec 2, 2016
-
 @author: Mitch
+
+Python script to prepare ADVANTG simulations
+    Before running:     -Provide path to input templates
+                        -Provide name of geometry
+                        -List quadrature types (Quadruple range, Level-Symmetric, or Gauss-Legendre)
+                        -List quadrature orders (order # for tri-LS; quad angle # for prod-QR,GL)
+                        -List P_N orders
+                        -Choose whether to generate python ADVANTG inputs, BASH runscripts for an input, or both
 '''
 import utils
+import runscriptGen as rsG
 from copy import deepcopy
+
 
 filepath = r'C:\\Users\\Mitch\\Documents\\Cal\\Slaybaugh_Group\\CaskModels\\char_tests\\'
 geomname = 'maze1'
@@ -14,14 +23,18 @@ triquadOs = [10,16,20]
 prodquadOs = [2,4,10,16]
 pnOs = [3]
 
+ADVANTGrun = 1  # 1 to generate ADVANTG (python) inputs
+SLURMrun = 1    # 1 to generate corresponding runscripts
+
+
 def quaddepparam(quad,triquadOs,prodquadOs):
     # Set parameters dependent on quadrature type
     if quad == 'levelsym':
-        filename = geomname + '_tri.py'     # specify triangular quad. type template
+        filename = geomname + '_t.py'     # specify triangular quad. type template
         optnames = ['denovo_quad_order']    # specify triangular quad. type labels
         quadOs = triquadOs                  # specify quadrature orders
     else:
-        filename = geomname + '_prod.py'    # specify product quad. type template
+        filename = geomname + '_p.py'    # specify product quad. type template
         optnames = ['denovo_quad_num_azi','denovo_quad_num_polar']
         quadOs = prodquadOs                 # specify quadrature angle numbers
         
@@ -63,7 +76,16 @@ if __name__ == '__main__':
                 changedlist = changeoptions(template,'denovo_pn_order',pnO)
                 output = utils.joinfile(changedlist,':\t')
         
-                outputfile = open(filepath+filename[:-3]+'_%s%s-%s' %(quad,str(quadO),str(pnO))+'.py','w')           
-                outputfile.write(output)
-                outputfile.close()
+                runname = filename[:-5]+'_%s%s-%s' %(quad,str(quadO),str(pnO))
+                
+                if ADVANTGrun == 1:
+                    outputfile = open(filepath+runname+'.py','w')
+                    outputfile.write(output)
+                    outputfile.close()
+                if SLURMrun == 1:
+                    runscriptfile = open(filepath+runname+'.sh','w')
+                    runscriptfile.write(rsG.makerunscript(runname))
+                    runscriptfile.close()
+                    
+                    
                 
