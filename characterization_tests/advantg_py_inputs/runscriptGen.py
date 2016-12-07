@@ -4,8 +4,9 @@ Created on Dec 5, 2016
 
 '''
 
-def makerunscript(runname):
+def makerunscript(outputfilename):
     #Function to generate a BASH/SLURM runscript  for the given run
+    runname = outputfilename[outputfilename.rfind('/')+1:-3]
     
     runscript ='''#!/bin/bash
 # job name:
@@ -26,6 +27,6 @@ def makerunscript(runname):
 #SBATCH --output=%s_slurm_%%j.out
 #SBATCH --error=%s_slurm_%%j.err
 ## Run command
-python "%s"''' %(runname[0:2],runname,runname,runname+'.py')
+python "%s"''' %(runname[0:5],runname,runname,outputfilename)
     
     return runscript
