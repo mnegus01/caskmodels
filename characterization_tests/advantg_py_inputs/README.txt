@@ -47,7 +47,8 @@ Step (3) is accomplished using the runADVANTG_geom.sh script
 	it doesn't already exist. Within this directory, the script will create sub-directories for each run 
 	(unique to a python input and runscript). ADVANTG outputs for a run will be located in these directories. 
 
-	-MCNP geometry for the run will be copied to the run sub-directory for access by ADVANTG.
+	-MCNP geometry for the run will be copied to the run sub-directory for access by ADVANTG. (MCNP geometry file
+	must be named "[geom].i")
 
 
 
