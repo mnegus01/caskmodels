@@ -5,10 +5,15 @@
 
 # Set variable geom to input
 geom=$1
+# Set variable method to method type (CADIS/FWCADIS)
+method=$2
 # Set variables to input/geometry/output paths
-inpath=$2
-geompath=$3
-outpath=$4
+inpath=$3
+geompath=$4
+outpath=$5
+scratchpath=$6
+
+startpath=$(pwd)
 
 # Check that the input location exists for runscfipts (and if not, give an error)
 if [ -d $inpath ]; then
@@ -30,25 +35,40 @@ if [ -d $inpath ]; then
 	else
 	    runname=${file##/*/}
 	    runname=${runname%.sh}
-	    if [ ! -d $outpath$geom$runname ]; then
-		pwd
-		echo "Creating output directory for this run: $outpath$geom/$runname"		
-		mkdir $runname
+	    runpath=$outpath$geom/$runname
+	    if [ ! -d $outpath$geom/$runname ]; then
+		echo "Creating output directory for this run: $runpath"		
+		mkdir $runpath
 	    fi
-	    echo "Changing location to run output directory: $outpath$geom$runname" 
-	    cd $runname
+	    echo "Changing location to run output directory: $runpath" 
+	    cd $runpath
 
 	    # Copy MCNP geometries to output directory
 	    echo "Copying geometry file to output directory"
-	    cp "$geompath$geom".i .
+	    cp "$geompath$geom"*-"$method"* .
 
-	    #Submit jobs to Savio
+	    # Submit jobs to Savio
 	    echo "Submitting $file to the queue."
 	    sbatch $file
-	    cd ..
+	    cd $outpath$geom
 	fi
     done
 else
     echo "ERROR: The input file location does not seem to exist."
 fi
+
+if [ -z $scratchpath ]; then
+	# Copy run files to scratch (use a batch job, with dependency set)
+	if [ ! -d $scratchpath$geom ]; then
+		mkdir $scratchpath$geom
+	fi
+
+	cd $startpath
+
+	sed s/geom/$geom/ cpscratch.sh | tee cpscratch_temp.sh
+	sed -i s/gjob/${runname:0:5}/ cpscratch_temp.sh
+	sbatch cpscratch_temp.sh $geom $outpath $scratchpath
+	rm -f cpscratch_temp.sh
+fi
+
 

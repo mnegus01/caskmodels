@@ -19,7 +19,7 @@ def makerunscript(outputfilename):
 #SBATCH --time=05:00:00
 #
 # Processors:
-#SBATCH --ntasks=20
+#SBATCH --ntasks=1
 #
 # Account:
 #SBATCH --account=co_nuclear
